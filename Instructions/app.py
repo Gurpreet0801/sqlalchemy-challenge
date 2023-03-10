@@ -1,3 +1,5 @@
+# Import all dependencies: 
+
 import numpy as np
 import sqlalchemy
 import datetime as dt
@@ -8,7 +10,7 @@ from sqlalchemy import create_engine, func
 from flask import Flask, jsonify 
 
 # Create connection to Hawaii.sqlite file
-#################################################
+
 
 engine = create_engine("sqlite:///hawaii.sqlite")
 
@@ -23,7 +25,7 @@ Measurement = Base.classes.measurement
 Station = Base.classes.station
 
 # Initialize Flask
-#################################################
+
 app = Flask(__name__)
 
 # Create Flask Routes 
@@ -85,10 +87,10 @@ def station():
     
     stations_values = []
     for station, id in station_query_results:
-        stations_values_dict = {}
-        stations_values_dict['station'] = station
-        stations_values_dict['id'] = id
-        stations_values.append(stations_values_dict)
+        StationValues = {}
+        StationValues['station'] = station
+        StationValues['id'] = id
+        stations_values.append(StationValues)
     return jsonify (stations_values) 
 
 # Create a route that queries the dates and temp observed for the most active station for the last year of data and returns a JSON list of the temps observed for the last year
@@ -114,9 +116,9 @@ def tobs():
     print(last_year_query_values)
     # returns: [{'date': '2017-08-23'}]
 
-    # Create query_start_date by finding the difference between date time object of "2017-08-23" - 365 days
-    query_start_date = dt.date(2017, 8, 23)-dt.timedelta(days =365) 
-    print(query_start_date) 
+    # Create StartDate by finding the difference between date time object of "2017-08-23" - 365 days
+    StartDate = dt.date(2017, 8, 23)-dt.timedelta(days =365) 
+    print(StartDate) 
     # returns: 2016-08-23 
 
     # Create query to find most active station in the database 
@@ -124,28 +126,28 @@ def tobs():
     active_station= session.query(Measurement.station, func.count(Measurement.station)).\
         order_by(func.count(Measurement.station).desc()).\
         group_by(Measurement.station).first()
-    most_active_station = active_station[0] 
+    MostActive = active_station[0] 
 
     session.close() 
      # active_station returns: ('USC00519281', 2772), index to get the first position to isolate most active station number
-    print(most_active_station)
+    print(MostActive)
     # returns: USC00519281  
 
     # Create a query to find dates and tobs for the most active station (USC00519281) within the last year (> 2016-08-23)
 
     dates_tobs_last_year_query_results = session.query(Measurement.date, Measurement.tobs, Measurement.station).\
-        filter(Measurement.date > query_start_date).\
-        filter(Measurement.station == most_active_station) 
+        filter(Measurement.date > StartDate).\
+        filter(Measurement.station == MostActive) 
     
 
     # Create a list of dates,tobs,and stations that will be appended with dictionary values for date, tobs, and station number queried above
     dates_tobs_last_year_query_values = []
     for date, tobs, station in dates_tobs_last_year_query_results:
-        dates_tobs_dict = {}
-        dates_tobs_dict["date"] = date
-        dates_tobs_dict["tobs"] = tobs
-        dates_tobs_dict["station"] = station
-        dates_tobs_last_year_query_values.append(dates_tobs_dict)
+        DatesDict = {}
+        DatesDict["date"] = date
+        DatesDict["tobs"] = tobs
+        DatesDict["station"] = station
+        dates_tobs_last_year_query_values.append(DatesDict)
         
     return jsonify(dates_tobs_last_year_query_values) 
 
@@ -167,11 +169,11 @@ def start_date(start):
     # Create a list of min,max,and average temps that will be appended with dictionary values for min, max, and avg tobs queried above
     start_date_tobs_values =[]
     for min, avg, max in start_date_tobs_results:
-        start_date_tobs_dict = {}
-        start_date_tobs_dict["min"] = min
-        start_date_tobs_dict["average"] = avg
-        start_date_tobs_dict["max"] = max
-        start_date_tobs_values.append(start_date_tobs_dict)
+        StartDate_dict = {}
+        StartDate_dict["min"] = min
+        StartDate_dict["average"] = avg
+        StartDate_dict["max"] = max
+        start_date_tobs_values.append(StartDate_dict)
     
     return jsonify(start_date_tobs_values)
 
@@ -187,23 +189,23 @@ def Start_end_date(start, end):
     
     # Create query for minimum, average, and max tobs where query date is greater than or equal to the start date and less than or equal to end date user submits in URL
 
-    start_end_date_tobs_results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+    StartEnd_DateResults = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
         filter(Measurement.date >= start).\
         filter(Measurement.date <= end).all()
 
     session.close()
   
     # Create a list of min,max,and average temps that will be appended with dictionary values for min, max, and avg tobs queried above
-    start_end_tobs_date_values = []
-    for min, avg, max in start_end_date_tobs_results:
-        start_end_tobs_date_dict = {}
-        start_end_tobs_date_dict["min_temp"] = min
-        start_end_tobs_date_dict["avg_temp"] = avg
-        start_end_tobs_date_dict["max_temp"] = max
-        start_end_tobs_date_values.append(start_end_tobs_date_dict) 
+    StartEnd_Date_values = []
+    for min, avg, max in StartEnd_DateResults:
+        StartEnd_dict = {}
+        StartEnd_dict["min_temp"] = min
+        StartEnd_dict["avg_temp"] = avg
+        StartEnd_dict["max_temp"] = max
+        StartEnd_Date_values.append(StartEnd_dict) 
     
 
-    return jsonify(start_end_tobs_date_values)
+    return jsonify(StartEnd_Date_values)
    
 if __name__ == '__main__':
     app.run(debug=True) 
